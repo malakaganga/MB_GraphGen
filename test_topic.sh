@@ -220,5 +220,5 @@ nohup $jmeterBinary -n -t $subscriber_outfile_name > /tmp/test_subscriber_result
 sleep 10
 nohup $jmeterBinary -n -t $publisher_outfile_name > /tmp/test_publisher_result.txt &
 
-echo -e "\nSubscriber Log output ...\n"
-tail -f /tmp/test_subscriber_result.txt
+echo -e "\Jmeter Log output ...\n"
+tail -f /tmp/test_subscriber_result.txt -f /tmp/test_publisher_result.txt
