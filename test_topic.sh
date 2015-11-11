@@ -73,6 +73,9 @@ EOF
 function addSubscribers {
     queueNumber=1
     nodeNumber=1
+    aggregateSize=100
+    aggregatedSamples=$(( messagesPerSubscriber / aggregateSize ))
+
     for i in $(seq 1 $total_subscribers); do 
         
         cat >> $1 <<EOF
@@ -81,7 +84,7 @@ function addSubscribers {
       <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
       <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
         <boolProp name="LoopController.continue_forever">false</boolProp>
-        <intProp name="LoopController.loops">$messagesPerSubscriber</intProp>
+        <intProp name="LoopController.loops">$aggregatedSamples</intProp>
       </elementProp>
       <stringProp name="ThreadGroup.num_threads">1</stringProp>
       <stringProp name="ThreadGroup.ramp_time">0</stringProp>
@@ -102,7 +105,7 @@ function addSubscribers {
         <stringProp name="jms.security_principle"></stringProp>
         <stringProp name="jms.security_credentials"></stringProp>
         <boolProp name="jms.authenticate">false</boolProp>
-        <stringProp name="jms.iterations">1</stringProp>
+        <stringProp name="jms.iterations">$aggregateSize</stringProp>
         <stringProp name="jms.read_response">true</stringProp>
         <stringProp name="jms.client_choice">jms_subscriber_receive</stringProp>
         <stringProp name="jms.timeout">300000</stringProp>
@@ -122,6 +125,9 @@ EOF
 function addPublishers {
     queueNumber=1
     nodeNumber=1
+    aggregateSize=100
+    aggregatedSamples=$(( messagesPerPublisher / aggregateSize ))
+
     for i in $(seq 1 $total_publishers); do 
         
         cat >> $1 <<EOF
@@ -129,7 +135,7 @@ function addPublishers {
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
-          <stringProp name="LoopController.loops">$messagesPerPublisher</stringProp>
+          <stringProp name="LoopController.loops">$aggregatedSamples</stringProp>
         </elementProp>
         <stringProp name="ThreadGroup.num_threads">1</stringProp>
         <stringProp name="ThreadGroup.ramp_time">0</stringProp>
@@ -153,7 +159,7 @@ function addPublishers {
           <stringProp name="jms.random_path"></stringProp>
           <stringProp name="jms.config_choice">jms_use_text</stringProp>
           <stringProp name="jms.config_msg_type">jms_text_message</stringProp>
-          <stringProp name="jms.iterations">1</stringProp>
+          <stringProp name="jms.iterations">$aggregateSize</stringProp>
           <boolProp name="jms.authenticate">false</boolProp>
           <elementProp name="jms.jmsProperties" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
             <collectionProp name="Arguments.arguments"/>
