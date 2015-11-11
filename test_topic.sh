@@ -36,6 +36,9 @@ read messagesPerPublisher
 echo -n "Maximum publisher TPS: "
 read maximumPublisherTPS
 
+echo -n "Message size (1KB): "
+read messageSize
+
 # echo -n "Number of message size (1KB): "
 # read messageSize
 
@@ -89,6 +92,9 @@ function addSubscribers {
     nodeNumber=1
     aggregateSize=1
     aggregatedSamples=$(( messagesPerSubscriber / aggregateSize ))
+
+    data_file="data/${messageSize}.txt"
+    text_message=$(<"$data_file")
 
     for i in $(seq 1 $total_subscribers); do 
         
@@ -168,7 +174,7 @@ function addPublishers {
           <stringProp name="jms.topic">MyTopic${queueNumber}</stringProp>
           <stringProp name="jms.security_principle"></stringProp>
           <stringProp name="jms.security_credentials"></stringProp>
-          <stringProp name="jms.text_message">&lt;a&gt;sdfaskhdkjfhvdskfsfjnskjdngfkjsndjsndk&lt;/a&gt;</stringProp>
+          <stringProp name="jms.text_message">$text_message</stringProp>
           <stringProp name="jms.input_file"></stringProp>
           <stringProp name="jms.random_path"></stringProp>
           <stringProp name="jms.config_choice">jms_use_text</stringProp>
