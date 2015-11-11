@@ -21,11 +21,27 @@ read queues
 echo -n "Number of nodes: "
 read nodes
 
-echo -n "Number of publishers: "
-read total_publishers
+#echo -n "Number of publishers: "
+#read total_publishers
 
-echo -n "Number of subcribers: "
-read total_subscribers
+#echo -n "Number of subcribers: "
+#read total_subscribers
+
+for i in $(seq 1 $nodes); do 
+#     echo -n "Node $i url: "
+#     read nodeUrls[$i]
+    
+    echo -e "\n=============== Node ${i} ================="
+    echo -n "Number of publishers for node $i: "
+    read publishers[$i]
+    total_publishers=$((total_publishers + ${publishers[$i]}))
+
+    echo -n "Number of subscribers for node $i: "
+    read subscribers[$i]
+    total_subscribers=$((total_subscribers + ${subscribers[$i]}))
+done
+
+echo
 
 echo -n "Number of messages per subscriber: "
 read messagesPerSubscriber
@@ -38,19 +54,6 @@ read maximumPublisherTPS
 
 echo -n "Message size (1KB): "
 read messageSize
-
-# for i in $(seq 1 $nodes); do 
-#     echo -n "Node $i url: "
-#     read nodeUrls[$i]
-
-#     echo -n "Number of publishers for node $i: "
-#     read publishers[$i]
-#     total_publishers=$((total_publishers + ${publishers[$i]}))
-
-#     echo -n "Number of subscribers for node $i: "
-#     read subscribers[$i]
-#     total_subscribers=$((total_subscribers + ${subscribers[$i]}))
-# done
 
 # Start Subscriber script 
 function startScript {
@@ -85,15 +88,14 @@ EOF
 # Add subscribers
 function addSubscribers {
     queueNumber=1
-    nodeNumber=1
     aggregateSize=1
     aggregatedSamples=$(( messagesPerSubscriber / aggregateSize ))
-
-    for i in $(seq 1 $total_subscribers); do 
+    for node_i in $(seq 1 $nodes); do 
+        for i in $(seq 1 ${subscribers[$node_i]}); do 
         
         cat >> $1 <<EOF
 
-    <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Subscriber ${i}" enabled="true">
+    <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Subscriber N${node}-${i}" enabled="true">
       <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
       <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
         <boolProp name="LoopController.continue_forever">false</boolProp>
@@ -113,7 +115,7 @@ function addSubscribers {
         <stringProp name="jms.jndi_properties">false</stringProp>
         <stringProp name="jms.initial_context_factory">org.wso2.andes.jndi.PropertiesFileInitialContextFactory</stringProp>
         <stringProp name="jms.provider_url">$jndi_location</stringProp>
-        <stringProp name="jms.connection_factory">TopicConnectionFactory${nodeNumber}</stringProp>
+        <stringProp name="jms.connection_factory">TopicConnectionFactory${node_i}</stringProp>
         <stringProp name="jms.topic">MyTopic${queueNumber}</stringProp>
         <stringProp name="jms.security_principle"></stringProp>
         <stringProp name="jms.security_credentials"></stringProp>
@@ -124,12 +126,11 @@ function addSubscribers {
         <stringProp name="jms.timeout">300000</stringProp>
         <stringProp name="jms.durableSubscriptionId">test-client-${i}</stringProp>
        </SubscriberSampler>
-      </hashTree>
+       </hashTree>
 EOF
 
-        queueNumber=$((((queueNumber) % queues) + 1))
-        nodeNumber=$((((nodeNumber) % nodes) + 1))
-
+            queueNumber=$((((queueNumber) % queues) + 1))
+        done
     done
 }
 
@@ -144,10 +145,11 @@ function addPublishers {
     data_file="data/${messageSize}.txt"
     text_message=$(<"$data_file")
 
-    for i in $(seq 1 $total_publishers); do 
+    for node_i in $(seq 1 $nodes); do 
+        for i in $(seq 1 ${publishers[$node_i]}); do 
         
         cat >> $1 <<EOF
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Publisher $i" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Publisher N${node}-${i}" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
@@ -162,11 +164,11 @@ function addPublishers {
         <stringProp name="ThreadGroup.delay"></stringProp>
       </ThreadGroup>
       <hashTree>
-        <PublisherSampler guiclass="JMSPublisherGui" testclass="PublisherSampler" testname="JMS Publisher $i" enabled="true">
+        <PublisherSampler guiclass="JMSPublisherGui" testclass="PublisherSampler" testname="JMS Publisher N${node}-${i}" enabled="true">
           <stringProp name="jms.jndi_properties">false</stringProp>
           <stringProp name="jms.initial_context_factory">org.wso2.andes.jndi.PropertiesFileInitialContextFactory</stringProp>
           <stringProp name="jms.provider_url">$jndi_location</stringProp>
-          <stringProp name="jms.connection_factory">TopicConnectionFactory${nodeNumber}</stringProp>
+          <stringProp name="jms.connection_factory">TopicConnectionFactory${node_i}</stringProp>
           <stringProp name="jms.topic">MyTopic${queueNumber}</stringProp>
           <stringProp name="jms.security_principle"></stringProp>
           <stringProp name="jms.security_credentials"></stringProp>
@@ -181,12 +183,12 @@ function addPublishers {
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
         </PublisherSampler>
-        </hashTree>
+        <hashTree/>
+      </hashTree>
 EOF
 
-        queueNumber=$((((queueNumber) % queues) + 1))
-        nodeNumber=$((((nodeNumber) % nodes) + 1))
-
+            queueNumber=$((((queueNumber) % queues) + 1))
+        done
     done
 }
 
