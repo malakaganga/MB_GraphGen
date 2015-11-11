@@ -33,6 +33,9 @@ read messagesPerSubscriber
 echo -n "Number of messages per publisher: "
 read messagesPerPublisher
 
+echo -n "Maximum publisher TPS: "
+read maximumPublisherTPS
+
 # echo -n "Number of message size (1KB): "
 # read messageSize
 
@@ -52,6 +55,8 @@ read messagesPerPublisher
 
 # Start Subscriber script 
 function startScript {
+    maximumPublisherThroughput=$((maximumPublisherTPS * 60))
+
     cat > $1 <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <jmeterTestPlan version="1.2" properties="2.3">
@@ -66,6 +71,15 @@ function startScript {
       <stringProp name="TestPlan.user_define_classpath"></stringProp>
     </TestPlan>
     <hashTree>
+      <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer" enabled="true">
+        <stringProp name="calcMode">all active threads</stringProp>
+        <doubleProp>
+          <name>throughput</name>
+          <value>$maximumPublisherThroughput</value>
+          <savedValue>0.0</savedValue>
+        </doubleProp>
+      </ConstantThroughputTimer>
+      <hashTree/>
 EOF
 }
 
@@ -73,7 +87,7 @@ EOF
 function addSubscribers {
     queueNumber=1
     nodeNumber=1
-    aggregateSize=100
+    aggregateSize=1
     aggregatedSamples=$(( messagesPerSubscriber / aggregateSize ))
 
     for i in $(seq 1 $total_subscribers); do 
@@ -125,7 +139,7 @@ EOF
 function addPublishers {
     queueNumber=1
     nodeNumber=1
-    aggregateSize=100
+    aggregateSize=1
     aggregatedSamples=$(( messagesPerPublisher / aggregateSize ))
 
     for i in $(seq 1 $total_publishers); do 
