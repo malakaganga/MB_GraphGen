@@ -142,13 +142,12 @@ function addPublishers {
     aggregateSize=1
     aggregatedSamples=$(( messagesPerPublisher / aggregateSize ))
 
-    data_file="data/${messageSize}.txt"
-    text_message=$(<"$data_file")
+    data_file="${script_directory}/data/${messageSize}.txt"
 
     for node_i in $(seq 1 $nodes); do 
         for i in $(seq 1 ${publishers[$node_i]}); do 
         
-        cat >> $1 <<EOF
+            cat >> $1 <<EOF
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Publisher N${node}-${i}" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
@@ -172,10 +171,10 @@ function addPublishers {
           <stringProp name="jms.topic">MyTopic${queueNumber}</stringProp>
           <stringProp name="jms.security_principle"></stringProp>
           <stringProp name="jms.security_credentials"></stringProp>
-          <stringProp name="jms.text_message">$text_message</stringProp>
-          <stringProp name="jms.input_file"></stringProp>
+          <stringProp name="jms.text_message"></stringProp>
+          <stringProp name="jms.input_file">$data_file</stringProp>
           <stringProp name="jms.random_path"></stringProp>
-          <stringProp name="jms.config_choice">jms_use_text</stringProp>
+          <stringProp name="jms.config_choice">jms_use_file</stringProp>
           <stringProp name="jms.config_msg_type">jms_text_message</stringProp>
           <stringProp name="jms.iterations">$aggregateSize</stringProp>
           <boolProp name="jms.authenticate">false</boolProp>
