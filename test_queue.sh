@@ -2,18 +2,14 @@
 
 # Requires At least Bash 4 to run this 
 
-script_directory="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-jmeterBinary="/mnt/Data/opt/apache-jmeter-2.7/bin/jmeter"
+source ./config.sh
 
 declare -A publishers=()
 declare -A subscribers=()
 declare -A nodeUrls=()
 
-subscriber_outfile_name="/tmp/test_subscriber.jmx"
-publisher_outfile_name="/tmp/test_publisher.jmx"
 total_publishers=0
 total_subscribers=0
-jndi_location="${script_directory}/defaultjndi.properties"
 
 echo -n "Number of queus: "
 read queues
