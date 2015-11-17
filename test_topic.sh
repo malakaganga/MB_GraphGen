@@ -53,8 +53,6 @@ read messageSize
 
 # Start Subscriber script 
 function startScript {
-    maximumPublisherThroughput=$((maximumPublisherTPS * 60))
-
     cat > $1 <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <jmeterTestPlan version="1.2" properties="2.3">
@@ -69,15 +67,6 @@ function startScript {
       <stringProp name="TestPlan.user_define_classpath"></stringProp>
     </TestPlan>
     <hashTree>
-      <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer" enabled="true">
-        <stringProp name="calcMode">all active threads</stringProp>
-        <doubleProp>
-          <name>throughput</name>
-          <value>$maximumPublisherThroughput</value>
-          <savedValue>0.0</savedValue>
-        </doubleProp>
-      </ConstantThroughputTimer>
-      <hashTree/>
 EOF
 }
 
@@ -91,7 +80,7 @@ function addSubscribers {
         
         cat >> $1 <<EOF
 
-    <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Subscriber N${node}-${i}" enabled="true">
+    <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Subscriber N${node_i}-${i}" enabled="true">
       <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
       <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
         <boolProp name="LoopController.continue_forever">false</boolProp>
@@ -140,11 +129,27 @@ function addPublishers {
 
     data_file="${script_directory}/data/${messageSize}.txt"
 
+    maximumPublisherThroughput=$((maximumPublisherTPS * 60))
+
+    # Add constant throughput timer
+    cat >> $1 <<EOF
+      <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer" enabled="true">
+        <stringProp name="calcMode">all active threads</stringProp>
+        <doubleProp>
+          <name>throughput</name>
+          <value>$maximumPublisherThroughput</value>
+          <savedValue>0.0</savedValue>
+        </doubleProp>
+      </ConstantThroughputTimer>
+      <hashTree/>
+EOF
+
+    # Add duarable subscribers
     for node_i in $(seq 1 $nodes); do 
         for i in $(seq 1 ${publishers[$node_i]}); do 
         
             cat >> $1 <<EOF
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Publisher N${node}-${i}" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Publisher N${node_i}-${i}" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
@@ -159,7 +164,7 @@ function addPublishers {
         <stringProp name="ThreadGroup.delay"></stringProp>
       </ThreadGroup>
       <hashTree>
-        <PublisherSampler guiclass="JMSPublisherGui" testclass="PublisherSampler" testname="JMS Publisher N${node}-${i}" enabled="true">
+        <PublisherSampler guiclass="JMSPublisherGui" testclass="PublisherSampler" testname="JMS Publisher N${node_i}-${i}" enabled="true">
           <stringProp name="jms.jndi_properties">false</stringProp>
           <stringProp name="jms.initial_context_factory">org.wso2.andes.jndi.PropertiesFileInitialContextFactory</stringProp>
           <stringProp name="jms.provider_url">$jndi_location</stringProp>
