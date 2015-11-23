@@ -10,11 +10,10 @@ newFile=~/Learning/FirstTask/MB_GraphGen/searched.txt
 newFile1=~/Learning/FirstTask/MB_GraphGen/searched1.txts
 for f in $FILES
 do 
-  echo $f
+
   # take action on each file. $f store current file name
   #just the name without path
   filename="${f##*/}"
-  echo $filename
   ins=INST
   #variable to keep length of the avgTime array
   len=0
