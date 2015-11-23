@@ -88,7 +88,7 @@ do
         cat << __EOF | gnuplot
 set xlabel "SAMPLE_NUMBER"
 set ylabel "AVERAGE_VALUES"        
-set term png
+set term png font arial 14 size 1500,800
 set output "$newPnam"
 plot "$newDnam" with lines title "Cumulative_Average", \
 "$newDnam1" with lines title "Instant_Average"
