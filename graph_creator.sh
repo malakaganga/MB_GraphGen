@@ -16,12 +16,12 @@
 #   specific language governing permissions and limitations
 #   under the License.
 #=============================================================================
-INPUT_FILES=PATH-TO-DATA-FILES DIRECTORY/*          #Path for the directory where text files are stored/*
-DATAFILES=PATH-TO-PROJECT-DIRECTORY-LOCATION/graph_generator/DataFiles/   #Path for the directory where data files should be stored/
-GRAPHS=PATH-TO-PROJECT-DIRECTORY-LOCATION/graph_generator/Graphs/         #Path for the directory where .png files should be stored/
+INPUT_FILES=PATH-TO-PROJECT-FOLDER/MB_GraphGen/Texts/*          #Path for the directory where text files are stored/*
+DATAFILES=PATH-TO-PROJECT-FOLDER/MB_GraphGen/DataFiles/   #Path for the directory where data files should be stored/
+GRAPHS=PATH-TO-PROJECT-FOLDER/MB_GraphGen/Graphs/         #Path for the directory where .png files should be stored/
 
-interim_file=PATH-TO-PROJECT-DIRECTORY-LOCATION/graph_generator/searched.txt  #New file path for the intermediate operations
-interim_file1=PATH-TO-PROJECT-DIRECTORY-LOCATION/graph_generator/searched1.txts
+interim_file=PATH-TO-PROJECT-FOLDER/MB_GraphGen/searched.txt  #New file path for the intermediate operations
+interim_file1=PATH-TO-PROJECT-FOLDER/MB_GraphGen/searched1.txts
 #--------------------------------------------------------
 # Take action on each file and $f store current file name
 #--------------------------------------------------------
